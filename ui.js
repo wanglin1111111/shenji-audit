@@ -53,10 +53,19 @@
     if (!key) {
       const c = CACHE[state.sampleId];
       if (c) {
-        state.findings = merge(state.findings, c.findings);
-        trail("语义引擎（离线缓存）", `${c.model} @ ${c.date}，${c.findings.length} 项发现`);
+        const norm = (c.findings || []).map(f => ({
+          rule: "SEM",
+          name: f.title || "语义发现",
+          severity: ["红线", "高", "中", "低"].includes(f.severity) ? f.severity : "中",
+          why: f.why || "", fix: f.suggestion || "",
+          source: "语义引擎 · " + (c.model || "glm-5.3") + "（离线缓存 " + c.date + "）",
+          evidence: [{ no: Math.max(1, f.evidence_line | 0), quote: (f.quote || "").slice(0, 80) }],
+          status: "待人工复核",
+        }));
+        state.findings = merge(state.findings, norm);
+        trail("语义引擎（离线缓存）", `${c.model} @ ${c.date}，${norm.length} 项发现`);
         renderStats(); renderFindings();
-        return flash(`已载入离线语义审计缓存（${c.model}，${c.date}）。输入密钥可实时重审。`, "ok");
+        return flash(`已载入离线语义审计缓存（${c.model}，${c.date}，${norm.length} 项发现）。输入密钥可实时重审。`, "ok");
       }
       return flash("未检测到密钥：输入智谱 API Key 可启用实时语义审计（密钥仅存本地浏览器）");
     }
@@ -76,11 +85,9 @@
   }
 
   function merge(base, sem) {
-    const baseKey = new Set(base.map(f => f.evidence.map(e => e.no).join(",")));
-    const dedup = sem.filter(f => {
-      const k = f.evidence.map(e => e.no).join(",");
-      return !baseKey.has(k);
-    });
+    const keyOf = f => (f.evidence || []).map(e => e.no).join(",");
+    const baseKey = new Set(base.map(keyOf));
+    const dedup = sem.filter(f => !baseKey.has(keyOf(f)));
     return [...base, ...dedup].sort((a, b) =>
       ({ "红线": 0, "高": 1, "中": 2, "低": 3 })[a.severity] - ({ "红线": 0, "高": 1, "中": 2, "低": 3 })[b.severity]);
   }
