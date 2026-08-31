@@ -3,19 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
 <title>审迹 SHENJI · 证据链式 AI 审计员</title>
 <style>
   :root {
-    --paper: #f3eee2; --page: #faf6ec; --ink: #1c1a16; --muted: #6b665c;
+    color-scheme: light;
+    --paper: #f3eee2; --page: #faf6ec; --ink: #1c1a16; --muted: #57534a;
     --seal: #b32e26; --line: #d8d0bd; --ok: #2e7d43;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0; background: var(--paper); color: var(--ink);
     font: 15px/1.7 "Microsoft YaHei", "PingFang SC", sans-serif;
+    -webkit-text-size-adjust: 100%;
   }
   .wrap { max-width: 1080px; margin: 0 auto; padding: 28px 20px 80px; }
-  header { border-bottom: 3px double var(--ink); padding-bottom: 14px; margin-bottom: 18px; }
+  header { border-bottom: 3px double var(--ink); padding-bottom: 14px; margin-bottom: 14px; }
   h1 { font: 700 30px/1.2 STKaiti, KaiTi, serif; margin: 0; letter-spacing: 4px; }
   h1 .en { font: 600 13px/1 sans-serif; letter-spacing: 3px; color: var(--muted); margin-left: 10px; }
   .tagline { color: var(--muted); margin-top: 6px; }
@@ -23,11 +26,24 @@
   h3 { font: 700 17px/1.4 STKaiti, KaiTi, serif; margin: 26px 0 8px; }
   .meta { font-size: 12px; color: var(--muted); letter-spacing: 1px; }
 
+  /* 步骤条 */
+  .steps { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0 0 14px; }
+  .steps .stp {
+    display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
+    background: var(--page); border: 1px solid var(--line); border-radius: 20px; font-size: 13px;
+  }
+  .steps .stp b {
+    display: inline-block; width: 20px; height: 20px; line-height: 20px; text-align: center;
+    background: var(--seal); color: #fff; border-radius: 50%; font-size: 12px;
+  }
+  .steps .arr { color: var(--muted); font-size: 13px; }
+
   .chip {
     display: inline-block; margin: 0 8px 8px 0; padding: 6px 12px; font-size: 13px;
     background: var(--page); border: 1px solid var(--line); border-radius: 4px;
     cursor: pointer; color: var(--ink);
   }
+  .chip:hover { border-color: var(--ink); }
   .chip.on { border-color: var(--seal); box-shadow: 0 0 0 1px var(--seal); }
   .chip b { color: var(--seal); margin-right: 4px; }
 
@@ -36,53 +52,66 @@
     background: var(--page); border: 1px solid var(--line); border-radius: 4px; color: var(--ink);
   }
   .keyrow { margin: 10px 0; font-size: 13px; }
-  .keyrow input { width: 320px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--page); }
-  .note { font-size: 12px; color: var(--muted); }
+  .keyrow input, .keyrow select {
+    padding: 6px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--page); color: var(--ink); font-size: 13px;
+  }
+  .keyrow input { width: 300px; }
+  .note { font-size: 12.5px; color: var(--muted); }
 
   .btns { margin: 12px 0; }
   button.act {
-    padding: 8px 18px; margin-right: 10px; font-size: 14px; cursor: pointer;
-    background: var(--ink); color: var(--paper); border: none; border-radius: 4px;
+    padding: 9px 18px; margin-right: 10px; margin-bottom: 8px; font-size: 14px; cursor: pointer;
+    background: var(--ink); color: #fff; border: none; border-radius: 4px;
   }
-  button.act.ghost { background: transparent; color: var(--ink); border: 1px solid var(--ink); }
-  #msg { min-height: 22px; font-size: 13px; color: var(--muted); }
-  #msg.ok { color: var(--ok); } #msg.err { color: var(--seal); } #msg.wait { color: #a06a00; }
+  button.act.ghost { background: var(--page); color: var(--ink); border: 1px solid var(--ink); }
+  #msg { min-height: 24px; font-size: 13.5px; color: var(--muted); }
+  #msg.ok { color: var(--ok); } #msg.err { color: var(--seal); } #msg.wait { color: #8a5a00; }
 
-  #stats { display: flex; gap: 16px; padding: 10px 14px; background: var(--page); border: 1px solid var(--line); border-radius: 4px; font-size: 13px; margin: 14px 0; }
+  #stats { display: flex; gap: 14px; flex-wrap: wrap; padding: 10px 14px; background: var(--page); border: 1px solid var(--line); border-radius: 4px; font-size: 13px; margin: 14px 0; }
   .sev-red { color: #fff; background: var(--seal); padding: 0 8px; border-radius: 3px; }
-  .sev-high { color: #fff; background: #c05a1a; padding: 0 8px; border-radius: 3px; }
-  .sev-mid { color: #fff; background: #9c7c1e; padding: 0 8px; border-radius: 3px; }
-  .sev-low { color: #fff; background: #7a756a; padding: 0 8px; border-radius: 3px; }
+  .sev-high { color: #fff; background: #a34710; padding: 0 8px; border-radius: 3px; }
+  .sev-mid { color: #fff; background: #7a600e; padding: 0 8px; border-radius: 3px; }
+  .sev-low { color: #fff; background: #4f4b43; padding: 0 8px; border-radius: 3px; }
 
   .finding { background: var(--page); border: 1px solid var(--line); border-left: 4px solid var(--muted); border-radius: 4px; padding: 12px 16px; margin-bottom: 10px; }
   .finding.sev-red { border-left-color: var(--seal); }
-  .finding.sev-high { border-left-color: #c05a1a; }
-  .finding.sev-mid { border-left-color: #9c7c1e; }
+  .finding.sev-high { border-left-color: #a34710; }
+  .finding.sev-mid { border-left-color: #7a600e; }
   .fhead { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
-  .sevchip { font-size: 12px; font-weight: 700; padding: 0 8px; border-radius: 3px; color: #fff; background: var(--muted); }
-  .sev-red .sevchip { background: var(--seal); } .sev-high .sevchip { background: #c05a1a; } .sev-mid .sevchip { background: #9c7c1e; }
+  .sevchip { font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 3px; color: #fff; background: var(--muted); }
+  .sev-red .sevchip { background: var(--seal); } .sev-high .sevchip { background: #a34710; } .sev-mid .sevchip { background: #7a600e; }
   .frule { font: 700 13px Consolas, monospace; color: var(--seal); }
   .fname { font-weight: 700; }
   .fsrc { margin-left: auto; font-size: 12px; color: var(--muted); }
   .fevid { font-size: 13px; margin: 6px 0 2px; background: #efe9d8; padding: 4px 8px; border-radius: 3px; }
   .fevid code { background: none; color: var(--seal); }
   .fwhy, .ffix { font-size: 13px; color: var(--muted); margin-top: 4px; }
-  .freview { margin-top: 8px; display: flex; gap: 8px; align-items: center; }
-  .freview button { padding: 2px 12px; font-size: 12px; cursor: pointer; background: var(--page); border: 1px solid var(--ink); border-radius: 3px; }
-  .fstatus { font-size: 12px; padding: 0 8px; border-radius: 3px; background: #e8e1cd; }
-  .fstatus.pass { background: #d9ecd9; color: var(--ok); }
-  .fstatus.fail { background: #f3d9d5; color: var(--seal); }
+  .freview { margin-top: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding-top: 8px; border-top: 1px dashed var(--line); }
+  .freview .hint { font-size: 12.5px; color: var(--muted); }
+  .freview button { padding: 4px 16px; font-size: 13px; cursor: pointer; border-radius: 4px; font-weight: 700; }
+  .freview button[data-v="采信"] { background: var(--ok); color: #fff; border: 1px solid var(--ok); }
+  .freview button[data-v="驳回"] { background: var(--page); color: var(--seal); border: 1.5px solid var(--seal); }
+  .fstatus { font-size: 12.5px; padding: 1px 10px; border-radius: 3px; background: #f1e5c3; color: #6b4e00; border: 1px solid #d8c78e; font-weight: 700; }
+  .fstatus.pass { background: #d9ecd9; color: var(--ok); border-color: #b5d4b5; }
+  .fstatus.fail { background: #f3d9d5; color: var(--seal); border-color: #e0b3ac; }
 
   table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--page); }
   th, td { border: 1px solid var(--line); padding: 7px 10px; text-align: left; }
-  th { background: #ece5d2; font-weight: 700; }
+  th { background: #ece5d2; font-weight: 700; color: var(--ink); }
   .pass { color: var(--ok); font-weight: 700; }
   .fail { color: var(--seal); font-weight: 700; }
-  code { background: #efe9d8; padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+  code { background: #efe9d8; padding: 1px 5px; border-radius: 3px; font-size: 12px; color: var(--ink); }
+
+  #guide { background: var(--page); border: 1px solid var(--line); border-radius: 4px; padding: 4px 16px 12px; margin-bottom: 6px; }
+  #guide summary { cursor: pointer; font-weight: 700; font-size: 14.5px; padding: 8px 0; color: var(--seal); }
+  #guide h4 { margin: 12px 0 4px; font-size: 13.5px; }
+  #guide ol, #guide ul { margin: 4px 0 8px; padding-left: 22px; font-size: 13px; }
+  #guide li { margin-bottom: 3px; }
 
   #trail { font-size: 12px; color: var(--muted); max-height: 220px; overflow: auto; background: var(--page); border: 1px solid var(--line); border-radius: 4px; padding: 10px 16px; }
   #trail li { margin-bottom: 2px; }
-  footer { margin-top: 40px; border-top: 1px solid var(--line); padding-top: 12px; font-size: 12px; color: var(--muted); }
+  footer { margin-top: 40px; border-top: 1px solid var(--line); padding-top: 12px; font-size: 12.5px; color: var(--muted); }
+  footer b { color: var(--ink); }
   .desc { font-size: 13px; color: var(--muted); margin: 6px 0 10px; }
 </style>
 </head>
@@ -91,8 +120,48 @@
   <header>
     <h1>审迹<span class="en">SHENJI · EVIDENCE-FIRST AI AUDITOR</span></h1>
     <div class="tagline">让每一条审计结论都有证据坐标 ｜ 不轻信陈述，只采信证据 ｜ <b>每条发现附 文件:行号 证据，未经人工复核不予定性</b></div>
-    <div class="meta">智绘未来 · 业财AI创新黑客松 2026 ｜ AI+审计合规赛道 ｜ MVP v0.1</div>
+    <div class="meta">智绘未来 · 业财AI创新黑客松 2026 ｜ AI+审计合规赛道 ｜ v0.2.0</div>
   </header>
+
+  <div class="steps">
+    <span class="stp"><b>1</b>选样例或粘贴文档</span><span class="arr">→</span>
+    <span class="stp"><b>2</b>运行规则审计</span><span class="arr">→</span>
+    <span class="stp"><b>3</b>运行语义审计（可零配置）</span><span class="arr">→</span>
+    <span class="stp"><b>4</b>人工复核：采信 / 驳回</span><span class="arr">→</span>
+    <span class="stp"><b>5</b>导出审计底稿</span>
+  </div>
+
+  <details id="guide">
+    <summary>📖 使用说明书（点开看完整步骤与免费实时体验教程）</summary>
+    <h4>一、零配置快速体验（不需要任何账号，1 分钟）</h4>
+    <ol>
+      <li>点击上方任一样例（推荐先点「违规·跨境金融技能片段」）；</li>
+      <li>点「▶ 运行规则审计」——毫秒级出发现，每条带行号证据；</li>
+      <li>点「▶ 运行语义审计」——内置样例自动载入预生成的语义审计结果（页面会明确标注"离线缓存"）；</li>
+      <li>在每条发现的下方点「采信」或「驳回」完成人工复核（这就是合规工作流的"待人工复核→定性→留痕"）；</li>
+      <li>点「双样例断言」查看引擎自身的验证结果；点「导出审计底稿」下载 Markdown 底稿。</li>
+    </ol>
+    <h4>二、免费实时体验语义引擎（自定义文本也想要 AI 实时审？3 步获取免费 Key）</h4>
+    <ol>
+      <li>打开 <a href="https://open.bigmodel.cn" target="_blank" rel="noopener">open.bigmodel.cn</a>（智谱开放平台）注册账号，新用户一般有免费额度，并提供免费/低成本档模型（以平台当期牌价为准）；</li>
+      <li>在控制台进入「API Keys」，创建并复制密钥；</li>
+      <li>回到本页，把密钥粘贴到下方输入框（只存你这个浏览器，不经过任何服务器），模型建议先选「glm-4-flash（免费/低成本档）」，点「▶ 运行语义审计」即可实时出结果。</li>
+    </ol>
+    <p class="note">试用满意后再决定是否升级为效果最好的 glm-5.3（换一下模型下拉框即可，Key 不用换）。</p>
+    <h4>三、合规工作流是怎么运转的</h4>
+    <ul>
+      <li>AI 只产出"待人工复核"的线索（附证据坐标），<b>永远不做定性</b>；</li>
+      <li>审计员点「采信 / 驳回」完成定性，动作写入「审计轨迹」；</li>
+      <li>「双样例断言」保证引擎自身被审计：违规样例必须拦截、合规样例必须放行；</li>
+      <li>「导出审计底稿」输出带审计编号、样本文本指纹、复核记录与结论的 Markdown 底稿。</li>
+    </ul>
+    <h4>四、常见问题</h4>
+    <ul>
+      <li><b>文字看不清？</b>请使用 Chrome / Edge 最新版，并在浏览器设置中关闭"强制深色模式"（本页为浅色宣纸风格设计）；</li>
+      <li><b>语义审计提示"离线缓存"？</b>表示展示的是预生成结果；填入 Key 后同一样例可实时重审；</li>
+      <li><b>数据安全？</b>规则引擎纯本地；语义引擎仅在填 Key 时把待审文本直连智谱 API，不经过任何中间服务器。</li>
+    </ul>
+  </details>
 
   <h3>① 选择或粘贴待审文档</h3>
   <div id="samples"></div>
@@ -100,14 +169,17 @@
   <textarea id="input" spellcheck="false" placeholder="粘贴 SKILL.md / 合规知识文档 / TEST.md 验证报告…"></textarea>
 
   <div class="keyrow">
-    智谱 API Key（可选，用于实时语义审计）：
-    <input id="key" type="password" placeholder="仅存本浏览器 localStorage，不经过任何服务器">
-    <div class="note">无密钥时内置样例自动使用离线语义审计缓存；规则引擎全程本地运行，无密钥也可完整演示。</div>
+    智谱 API Key（可选）：<input id="key" type="password" placeholder="仅存本浏览器 localStorage，不经过任何服务器">
+    　模型：<select id="model">
+      <option value="glm-4-flash">glm-4-flash（免费/低成本档，推荐先用）</option>
+      <option value="glm-5.3">glm-5.3（效果最好）</option>
+    </select>
+    <div class="note">没有 Key？看上方「使用说明书 · 二」三步免费获取；不填 Key 也能完整体验全部功能（语义审计用内置离线缓存）。</div>
   </div>
 
   <div class="btns">
     <button id="run-rule" class="act">▶ 运行规则审计</button>
-    <button id="run-llm" class="act">▶ 运行语义审计（GLM-5.3）</button>
+    <button id="run-llm" class="act">▶ 运行语义审计</button>
     <button id="run-assert" class="act ghost">双样例断言</button>
     <button id="export" class="act ghost">导出审计底稿</button>
   </div>
@@ -123,13 +195,14 @@
   <ul id="trail"></ul>
 
   <footer>
-    审迹 = 审计轨迹（Audit Trail）｜ 规则引擎本地确定性运行 ｜ 语义引擎浏览器直连智谱 GLM-5.3，密钥仅存 localStorage ｜
-    样例源自 2026-08 真实合规排查：60+ 仓库全量扫描发现"分批出境"监管红线被包装为实操建议，已修正。
+    <b>审迹</b> = 审计轨迹（Audit Trail）｜ 规则引擎本地确定性运行 ｜ 语义引擎浏览器直连智谱 GLM，密钥仅存 localStorage ｜
+    样例源自 2026-08 真实合规排查：60+ 仓库全量扫描发现"分批出境"监管红线被包装为实操建议，已修正。<br>
+    联系我们：<b>2281216234@qq.com</b>（审迹小组 · 高强）｜ 遇到问题或希望共建规则库，欢迎邮件交流。
   </footer>
 </div>
-<script src="samples.js?v=0.1.2"></script>
-<script src="llm-cache.js?v=0.1.2"></script>
-<script src="app.js?v=0.1.2"></script>
-<script src="ui.js?v=0.1.2"></script>
+<script src="samples.js?v=0.2.0"></script>
+<script src="llm-cache.js?v=0.2.0"></script>
+<script src="app.js?v=0.2.0"></script>
+<script src="ui.js?v=0.2.0"></script>
 </body>
 </html>
