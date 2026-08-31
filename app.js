@@ -149,13 +149,14 @@
     + '{"findings":[{"severity":"红线|高|中|低","title":"…","evidence_line":行号,"quote":"原文","why":"违规理由(引用法规,≤60字)","suggestion":"整改建议(≤40字)"}]}'
     + '。没有问题输出 {"findings":[]}。直接输出 JSON，不要输出其他文字，why/suggestion 保持简洁。';
 
-  async function semanticAudit(text, apiKey) {
+  async function semanticAudit(text, apiKey, model) {
+    const useModel = model || LLM_MODEL;
     const numbered = text.split("\n").map((l, i) => `${i + 1}| ${l}`).join("\n");
     const res = await fetch(LLM_URL, {
       method: "POST",
       headers: { "x-api-key": apiKey, "anthropic-version": "2023-06-01", "content-type": "application/json" },
       body: JSON.stringify({
-        model: LLM_MODEL, max_tokens: 3000, temperature: 0.2,
+        model: useModel, max_tokens: 3000, temperature: 0.2,
         system: SYS_PROMPT,
         messages: [{ role: "user", content: "待审文档（行号|内容）：\n\n" + numbered }],
       }),
@@ -172,7 +173,7 @@
       name: f.title || "语义发现",
       severity: ["红线", "高", "中", "低"].includes(f.severity) ? f.severity : "中",
       why: f.why || "", fix: f.suggestion || "",
-      source: "语义引擎 · " + LLM_MODEL,
+      source: "语义引擎 · " + useModel,
       evidence: [{ no: Math.min(Math.max(1, f.evidence_line | 0), nLines), quote: (f.quote || "").slice(0, 80) }],
       status: "待人工复核",
     }));
