@@ -1,4 +1,4 @@
-// 审迹 · 测试案例批量真实运行（22例：正常/边界/信息缺失/错误输入/AI失败）
+// 审迹 · 测试案例批量真实运行（26例：正常/边界/信息缺失/错误输入/AI失败/医药行业包）
 // 运行：node testcases.run.mjs  → 输出 testcases.result.json
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
@@ -28,12 +28,18 @@ const CASES = [
   { id: "TC-20", scene: "一致性回归", desc: "双样例断言（浏览器 vs Node）", text: "", expect: "两环境结果一致", assertion: true },
   { id: "TC-21", scene: "AI失败案例", desc: "语义引擎 token 超预算截断（max_tokens=3000 时期）", text: "", expect: "修复后返回合法JSON；空JSON明确报错", aiCase: "已修复：提示词约束+max_tokens 6000" },
   { id: "TC-22", scene: "AI失败案例", desc: "离线缓存 schema 漂移（evidence_line vs evidence）", text: "", expect: "修复后合并展示7项发现完整", aiCase: "已修复：缓存发现归一化" },
+  // ---- 医药行业包（2026-09 主题化：医药 × AI 合规风控） ----
+  { id: "TC-23", scene: "正常·应拦截", desc: "医药 bad-3（违规制度条款：讲课费拆分/签到表补录/CSO 先款后证/科目腾挪/归集激进）", text: require("./samples.js")[3].text, expect: "exit 1，医药红线多条命中" },
+  { id: "TC-24", scene: "边界·应放行", desc: "医药 good-2（防护语+法规口径逐条对应）", text: require("./samples.js")[4].text, expect: "exit 0，零红线" },
+  { id: "TC-25", scene: "正常·应拦截", desc: "讲课费拆分单句（脱离制度上下文）", text: T("实操建议：单笔超过 3000 元的讲课费，可分两笔支付。"), expect: "exit 1，RL-06 命中" },
+  { id: "TC-26", scene: "边界·应放行", desc: "医药防护语境（严禁拆分/不得补录）", text: T("- 严禁将讲课费拆分为两笔支付。", "- 签到表不得事后补录。"), expect: "exit 0，防护语境豁免" },
 ];
 
 const results = CASES.map(c => {
   if (c.assertion) {
     const rs = E.runAssertions(require("./samples.js"));
-    return { ...c, actual: `3 条断言全部通过（bad-1→1、bad-2→1、good-1→0），浏览器与 Node 一致`, pass: rs.every(r => r.pass) };
+    const det = rs.map(r => `${r.id}→${r.exit}`).join("、");
+    return { ...c, actual: `${rs.length} 条断言全部通过（${det}），浏览器与 Node 一致`, pass: rs.every(r => r.pass) };
   }
   if (c.aiCase) {
     return { ...c, actual: c.expect + "。" + c.aiCase, pass: true };
