@@ -251,7 +251,61 @@
     return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
   }
 
-  const engineAPI = { analyzeText, exitCode, runAssertions, semanticAudit, hash32, now, RULES, LLM_MODEL, LLM_URL, SYS_PROMPT };
+  /* ---------------- 底稿完整性摘要（SJ-DIGEST-V1） ----------------
+   * 规范见 digest-spec.md。摘要覆盖：审计编号/时间/样本/引擎/模型/文本指纹/
+   * 全部发现（含复核状态与证据）/审计轨迹。用于防篡改验证，不提供不可否认性。
+   */
+  const ENGINE_VERSION = "0.3.0";
+
+  async function sha256Hex(s) {
+    if (!(globalThis.crypto && globalThis.crypto.subtle)) {
+      throw new Error("当前环境不支持 Web Crypto（需 HTTPS 或 localhost 访问），无法生成底稿摘要");
+    }
+    const buf = new TextEncoder().encode(s);
+    const d = await globalThis.crypto.subtle.digest("SHA-256", buf);
+    return Array.from(new Uint8Array(d)).map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+
+  function canonicalize(o) {
+    const L = [];
+    L.push("SJ-DIGEST-V1");
+    L.push("audit_id=" + o.auditId);
+    L.push("timestamp=" + o.ts);
+    L.push("sample_id=" + o.sampleId);
+    L.push("engine=shenji/" + ENGINE_VERSION);
+    L.push("model=" + o.model);
+    L.push("text_sha256=" + o.textHash);
+    (o.findings || []).forEach((f, i) => {
+      L.push("F" + i + "|" + [
+        f.rule, f.name, f.severity, f.status,
+        (f.evidence || []).map(e => e.no + ":" + e.quote).join("~"),
+      ].join("|"));
+    });
+    L.push("--trail--");
+    (o.trail || []).forEach(t => L.push("T|" + [t.ts, t.action, t.detail].join("|")));
+    return L.join("\n");
+  }
+
+  /* ---------------- 敏感信息检测（外发前置控制） ---------------- */
+  const SENSITIVE = [
+    { id: "ID-CARD", label: "疑似身份证号",
+      re: /\b[1-9]\d{5}(?:19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}[\dXx]\b/g },
+    { id: "BANK-CARD", label: "疑似银行卡号", re: /\b\d{16,19}\b/g },
+    { id: "MOBILE", label: "疑似手机号码", re: /\b1[3-9]\d{9}\b/g },
+    { id: "EMAIL", label: "疑似邮箱地址", re: /\b[\w.+-]+@[\w-]+\.[\w.]+\b/g },
+    { id: "SECRET-MARK", label: "涉密/重要数据标识",
+      re: /(?:机密|秘密|绝密|内部资料|不得外传|核心数据|重要数据|未经许可不得)/g },
+  ];
+
+  function scanSensitive(text) {
+    return SENSITIVE
+      .map(s => ({ id: s.id, label: s.label, count: (String(text || "").match(s.re) || []).length }))
+      .filter(x => x.count > 0);
+  }
+
+  const engineAPI = { analyzeText, exitCode, runAssertions, semanticAudit,
+    hash32, sha256Hex, canonicalize, scanSensitive, now,
+    RULES, SENSITIVE, ENGINE_VERSION, LLM_MODEL, LLM_URL, SYS_PROMPT };
   if (typeof module !== "undefined" && module.exports) module.exports = engineAPI;
   root.Shenji = engineAPI;
 })(typeof window !== "undefined" ? window : globalThis);

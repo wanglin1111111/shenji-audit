@@ -4,7 +4,12 @@
   const $ = id => document.getElementById(id);
   const E = window.Shenji, SAMPLES = window.SAMPLES, CACHE = window.LLM_CACHE || {};
 
-  const state = { sampleId: SAMPLES[0].id, findings: [], trail: [], text: "" };
+  const state = {
+    sampleId: SAMPLES[0].id, findings: [], trail: [], text: "",
+    reviewer: "",      // FIX-06 复核人标识（写入底稿，仅存本地）
+    assertRan: false,   // FIX-06 是否运行过双样例断言
+    assertPass: false,  // FIX-06 双样例断言结果
+  };
 
   function trail(action, detail) {
     state.trail.unshift({ ts: E.now(), action, detail });
@@ -73,6 +78,24 @@
       $("guide").scrollIntoView({ behavior: "smooth", block: "start" });
       return flash("自定义文本的实时语义审计需要一把免费的智谱 Key：已为你展开「使用说明书·二」，三步即可获取（默认已选免费档模型）。不填 Key 时，规则审计与全部复核工作流不受影响。", "wait");
     }
+    // FIX-04 敏感信息检测：默认阻断，放行须人工确认并留痕
+    const hits = E.scanSensitive(state.text);
+    if (hits.length) {
+      const summary = hits.map(h => `${h.label} × ${h.count}`).join("、");
+      const ok = confirm(
+        "检测到可能的敏感信息：\n" + summary +
+        "\n\n继续将把这些内容提交至智谱 GLM（第三方模型服务）。\n\n" +
+        "建议：① 删除敏感片段后重试；② 仅使用本地规则引擎；\n" +
+        "③ 若已确认不含重要数据且已完成合法的对外提供/委托处理程序，点「确定」继续（本次确认将写入审计轨迹）。"
+      );
+      if (!ok) {
+        trail("语义审计中止", "敏感信息检测命中：" + hits.map(h => h.id + "×" + h.count).join("、"));
+        renderStats();
+        return flash("已中止语义审计（敏感信息检测）。可仅使用本地规则引擎，全程不出浏览器。", "wait");
+      }
+      trail("语义审计放行（人工确认）",
+            "敏感信息检测命中但用户确认发送：" + hits.map(h => h.id + "×" + h.count).join("、"));
+    }
     flash("语义引擎运行中（" + model + "）…", "wait");
     try {
       const t0 = performance.now();
@@ -100,6 +123,8 @@
   function runAssert() {
     const rs = E.runAssertions(SAMPLES);
     const allPass = rs.every(r => r.pass);
+    state.assertRan = true;
+    state.assertPass = allPass;
     trail("双样例断言", `${rs.length} 项断言，整体 ${allPass ? "PASS" : "FAIL"}（防自证式假验证）`);
     $("assert").innerHTML = `
       <h3 style="margin-top:6px">双样例断言结果 <span class="${allPass ? "pass" : "fail"}">整体 ${allPass ? "PASS" : "FAIL"}</span></h3>
@@ -142,7 +167,7 @@
           <span class="sevchip">${f.severity}</span>
           <span class="frule">${f.rule}</span>
           <span class="fname">${f.name}</span>
-          <span class="fsrc">${f.source}</span>
+          <span class="fsrc">${f.source}</span>${/离线缓存/.test(f.source) ? '<span class="cache-badge">离线缓存</span>' : ""}
         </div>
         ${f.evidence.map(e => `<div class="fevid">行 ${e.no} ｜ <code>${escapeHtml(e.quote)}</code></div>`).join("")}
         <div class="fwhy"><b>判定依据：</b>${escapeHtml(f.why)}</div>
@@ -164,17 +189,70 @@
   }
 
   /* ---------- 底稿导出 ---------- */
-  function exportReport() {
+  async function exportReport() {
     if (!state.findings.length && !state.trail.length) return flash("请先运行审计");
-    const hash = E.hash32(state.text || "");
-    const exit = E.exitCode(state.findings);
+
+    // FIX-06 复核人标识：读取页面输入框（写入底稿，仅存本地，不上传）
+    const rev = ($("reviewer") && $("reviewer").value || "").trim();
+    if (!rev) return flash("请先在「复核人」框填写标识（写入底稿、仅存本地）——底稿可追溯要求（CSA 1131）", "err");
+    if (state.reviewer !== rev) { state.reviewer = rev; trail("设置复核人", rev); }
+    localStorage.setItem("shenji_reviewer", rev);
+
+    // FIX-01 结论仅对「已采信」的发现定性；存在未复核项时不得给出结论
+    const accepted = state.findings.filter(f => f.status === "采信");
+    const pending  = state.findings.filter(f => f.status === "待人工复核");
+    const rejected = state.findings.filter(f => f.status === "驳回");
+    const exit = E.exitCode(accepted);
+    const hiAccepted = accepted.filter(f => f.severity === "红线" || f.severity === "高").length;
+    const conclusion = pending.length
+      ? `**待人工复核** —— 尚有 ${pending.length}/${state.findings.length} 项发现未经人工定性；本报告不构成审计结论`
+      : (exit === 1
+          ? `**拦截** —— 经人工采信的红线/高风险发现 ${hiAccepted} 项`
+          : `**放行** —— 已完成人工复核，采信的发现中无红线/高风险项`);
+
+    // FIX-06 引擎自验证状态
+    const assertNote = !state.assertRan
+      ? "⚠ 本次未运行双样例断言，引擎未经自验证"
+      : (state.assertPass
+          ? "双样例断言：PASS（引擎已通过自验证）"
+          : "⚠ 双样例断言：FAIL —— 引擎未通过自验证，本底稿结论不予采信");
+
+    // FIX-05 数据来源构成
+    const srcKind = f => /离线缓存/.test(f.source) ? "cache" : (/规则引擎/.test(f.source) ? "rule" : "live");
+    const nRule  = state.findings.filter(f => srcKind(f) === "rule").length;
+    const nLive  = state.findings.filter(f => srcKind(f) === "live").length;
+    const nCache = state.findings.filter(f => srcKind(f) === "cache").length;
+    const cacheSrc = [...new Set(state.findings.filter(f => srcKind(f) === "cache").map(f => f.source))];
+
+    // FIX-02 完整性摘要（顺序要点：先算摘要，最后才写「导出底稿」轨迹）
+    const auditId = "SJ-" + Date.now().toString(36).toUpperCase();
+    const ts = E.now();
+    const model = $("model") ? $("model").value : E.LLM_MODEL;
+    const textHash = await E.sha256Hex(state.text || "");
+    const digest = await E.sha256Hex(E.canonicalize({
+      auditId, ts, sampleId: state.sampleId, model, textHash,
+      findings: state.findings, trail: state.trail,
+    }));
+
     const md = `# 审迹 · 审计底稿
 
-- 审计编号：SJ-${Date.now().toString(36).toUpperCase()}
-- 审计时间：${E.now()}
-- 样本编号：${state.sampleId}　文本指纹：${hash}
-- 引擎版本：规则引擎 v0.2（${E.RULES.length} 条规则）＋ 语义引擎 ${$("model") ? $("model").value : E.LLM_MODEL}
-- 审计结论：${exit === 1 ? "**拦截**（存在红线/高风险发现）" : "**放行**（无红线/高风险发现）"}
+- 审计编号：${auditId}
+- 审计时间：${ts}
+- 复核人：${state.reviewer}
+- 样本编号：${state.sampleId}　文本指纹（SHA-256）：${textHash}
+- 底稿摘要（SHA-256 · SJ-DIGEST-V1）：${digest}
+- 引擎版本：审迹 ${E.ENGINE_VERSION}（规则引擎 ${E.RULES.length} 条规则）＋ 语义引擎 ${model}
+- 引擎自验证：${assertNote}
+- 复核进度：采信 ${accepted.length} ／ 驳回 ${rejected.length} ／ 待复核 ${pending.length}（共 ${state.findings.length} 项）
+- 审计结论：${conclusion}
+
+## 数据来源说明
+
+- 规则引擎（本地确定性运行，数据不出浏览器）：${nRule} 项
+- 语义引擎实时调用（模型：${model}）：${nLive} 项
+- **离线缓存（预生成结果，非本次实时调用）**：${nCache} 项
+${cacheSrc.map(s => "  - " + s).join("\n")}
+${nCache ? "\n> 标注「离线缓存」的发现为预先生成的历史结果，不代表本次模型实时输出，引用时请注意其时效性。" : ""}
 
 ## 审计发现（${state.findings.length} 项）
 
@@ -192,13 +270,29 @@ ${state.trail.map(t => `- \`${t.ts}\` ${t.action} ｜ ${t.detail}`).join("\n")}
 本底稿由审迹 SHENJI 自动生成；每条发现均附证据坐标，未经人工复核的发现状态为"待人工复核"。
 联系我们：2281216234@qq.com
 `;
-    const blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
+
+    // FIX-02 完整性段：摘要覆盖 输入文本 + 全部发现（含复核状态）+ 审计轨迹
+    const integrity = `
+
+## 底稿完整性
+
+- 摘要算法：SJ-DIGEST-V1（SHA-256），规范见 digest-spec.md
+- 摘要：
+\`\`\`
+${digest}
+\`\`\`
+- 覆盖范围：审计编号、审计时间、样本编号、引擎版本、模型、输入文本指纹、全部发现（含规则ID/严重度/复核状态/证据行号与引用）、审计轨迹
+- 验证方式：按 digest-spec.md 的规范化规则对上述字段重新序列化后计算 SHA-256，与上式一致即表明底稿未被修改
+- 注意：本摘要用于**防篡改验证**，不提供不可否认性（无数字签名）
+`;
+
+    const blob = new Blob([md + integrity], { type: "text/markdown;charset=utf-8" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = `审迹底稿_${state.sampleId}_${Date.now().toString(36)}.md`;
     a.click();
-    trail("导出底稿", `SJ 底稿已导出（exit ${exit}，${state.findings.length} 项发现）`);
-    flash("审计底稿已导出（Markdown）", "ok");
+    trail("导出底稿", `编号 ${auditId} ｜ exit ${exit}（仅计已采信）｜ ${state.findings.length} 项发现 ｜ 摘要 ${digest.slice(0, 16)}…`);
+    flash(`审计底稿已导出 · 摘要 ${digest.slice(0, 16)}…（完整摘要见底稿「底稿完整性」段）`, "ok");
   }
 
   /* ---------- 杂项 ---------- */
@@ -284,6 +378,7 @@ ${state.trail.map(t => `- \`${t.ts}\` ${t.action} ｜ ${t.detail}`).join("\n")}
   document.addEventListener("DOMContentLoaded", () => {
     renderChips();
     $("key").value = localStorage.getItem("shenji_key") || "";
+    if ($("reviewer") && localStorage.getItem("shenji_reviewer")) $("reviewer").value = localStorage.getItem("shenji_reviewer");
     if (localStorage.getItem("shenji_model")) $("model").value = localStorage.getItem("shenji_model");
     $("run-rule").onclick = runRule;
     $("run-llm").onclick = runSemantic;

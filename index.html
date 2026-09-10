@@ -54,6 +54,8 @@
   textarea.dropping { border: 2px dashed var(--seal); background: #fdf6f0; }
   .import-row { display: flex; gap: 12px; align-items: center; margin: 8px 0; flex-wrap: wrap; }
   .import-row .note { font-size: 12.5px; color: var(--muted); }
+  .cache-badge { display: inline-block; margin-left: 6px; padding: 1px 8px; font-size: 11px;
+    border: 1px solid #b07d43; color: #b07d43; border-radius: 3px; background: rgba(176,125,67,.08); }
   .keyrow { margin: 10px 0; font-size: 13px; }
   .keyrow input, .keyrow select {
     padding: 6px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--page); color: var(--ink); font-size: 13px;
@@ -165,6 +167,15 @@
       <li><b>语义审计提示"离线缓存"？</b>表示展示的是预生成结果；填入 Key 后同一样例可实时重审；</li>
       <li><b>数据安全？</b>规则引擎纯本地；语义引擎仅在填 Key 时把待审文本直连智谱 API，不经过任何中间服务器。</li>
     </ul>
+    <h4>五、数据与隐私声明</h4>
+    <ul>
+      <li><b>待审文本</b>：规则审计全程在你的浏览器内本地运行，文本不出浏览器；仅当你填写 Key 并主动点击「语义审计」时，待审文本才经 HTTPS 直连<b>智谱 GLM（境内持牌大模型服务）</b>，审迹不设任何中间服务器、不留存你的待审内容；</li>
+      <li><b>访问日志</b>：本站托管于 GitHub Pages（境外服务），页面加载过程 GitHub 会按其惯例处理 IP、User-Agent 等访问信息；审迹自身不嵌入任何统计或埋点脚本；</li>
+      <li><b>API Key</b>：仅保存在你本浏览器的 localStorage，用于浏览器直连智谱；请勿在共享终端勾选保存，用后可在浏览器设置中清除；</li>
+      <li><b>审计底稿与复核记录</b>：仅存于你的浏览器与导出的本地文件，请按你所在机构的底稿保管要求存放于境内并控制访问权限；</li>
+      <li><b>敏感数据提醒</b>：请勿将涉密、重要数据或个人敏感信息粘贴为待审内容；语义审计前的敏感信息检测（证件号/银行卡/手机号等）命中时会阻断并要求你确认；</li>
+      <li><b>你的权利</b>：本站无账号体系，不主动收集个人信息；如你对上述处理有疑问，可通过页脚邮箱联系我们处理。</li>
+    </ul>
   </details>
 
   <h3>① 选择或粘贴待审文档</h3>
@@ -185,6 +196,9 @@
     <div class="note">没有 Key？看上方「使用说明书 · 二」三步免费获取；不填 Key 也能完整体验全部功能（语义审计用内置离线缓存）。</div>
   </div>
 
+  <div class="keyrow">
+    复核人（写入底稿，仅存本地）：<input id="reviewer" type="text" placeholder="如：张三（内审部）——底稿可追溯要求">
+  </div>
   <div class="btns">
     <button id="run-rule" class="act">▶ 运行规则审计</button>
     <button id="run-llm" class="act">▶ 运行语义审计</button>
@@ -205,12 +219,12 @@
   <footer>
     <b>审迹</b> = 审计轨迹（Audit Trail）｜ 规则引擎本地确定性运行 ｜ 语义引擎浏览器直连智谱 GLM，密钥仅存 localStorage ｜
     样例源自 2026-08 真实合规排查：60+ 仓库全量扫描发现"分批出境"监管红线被包装为实操建议，已修正。<br>
-    联系我们：<b>2281216234@qq.com</b>（审迹小组）｜ 遇到问题或希望共建规则库，欢迎邮件交流。
+    联系我们：<b>2281216234@qq.com</b>（审迹小组）｜ 遇到问题或希望共建规则库，欢迎邮件交流。<br>数据处理与隐私声明见上方「使用说明书 · 五」｜ 底稿完整性摘要算法公开规范：<a href="digest-spec.md" target="_blank">digest-spec.md（SJ-DIGEST-V1）</a>
   </footer>
 </div>
-<script src="samples.js?v=0.3.0"></script>
-<script src="llm-cache.js?v=0.3.0"></script>
-<script src="app.js?v=0.3.0"></script>
-<script src="ui.js?v=0.3.0"></script>
+<script src="samples.js?v=0.3.1"></script>
+<script src="llm-cache.js?v=0.3.1"></script>
+<script src="app.js?v=0.3.1"></script>
+<script src="ui.js?v=0.3.1"></script>
 </body>
 </html>
