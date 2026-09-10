@@ -214,6 +214,72 @@ ${state.trail.map(t => `- \`${t.ts}\` ${t.action} ｜ ${t.detail}`).join("\n")}
     flashTimer = setTimeout(() => { el.textContent = ""; }, 9000);
   }
 
+  /* ---------- 文档导入：拖拽 / 选择文件 / 粘贴自动识别 ---------- */
+  function loadDocText(text, fileName) {
+    $("input").value = text;
+    state.text = text;
+    state.sampleId = "custom";
+    state.findings = [];
+    renderFindings(); renderChips();
+    $("desc").textContent = `已载入文档：${fileName}（${text.split("\n").length} 行 / ${text.length} 字符）。规则审计零配置可用；语义审计需填 Key。`;
+    trail("导入文档", `${fileName}（${text.length} 字符）`);
+    flash(`已载入「${fileName}」，点「▶ 运行规则审计」开始审计。`, "ok");
+  }
+
+  function readTextFile(file) {
+    if (file.size > 2 * 1024 * 1024) return flash("文件超过 2MB，请拆分后导入", "err");
+    const r = new FileReader();
+    r.onload = () => loadDocText(String(r.result || ""), file.name);
+    r.onerror = () => flash("文件读取失败，请重试或改用粘贴方式", "err");
+    r.readAsText(file, "utf-8");
+  }
+
+  function setupImport() {
+    const ta = $("input");
+
+    // 窗口级兜底：防止把文件拖到页面其他位置时浏览器直接打开文件、丢掉审计状态
+    ["dragover", "dragenter"].forEach(ev =>
+      window.addEventListener(ev, e => { if (e.dataTransfer) e.preventDefault(); }));
+    window.addEventListener("drop", e => {
+      const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (!f) return;               // 页面内文本拖放走浏览器默认
+      e.preventDefault();
+      readTextFile(f);
+    });
+
+    // textarea：拖入高亮 + 文件落点
+    ta.addEventListener("dragover", e => { e.preventDefault(); ta.classList.add("dropping"); });
+    ta.addEventListener("dragleave", () => ta.classList.remove("dropping"));
+    ta.addEventListener("drop", e => {
+      e.preventDefault(); e.stopPropagation();
+      ta.classList.remove("dropping");
+      const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f) readTextFile(f);       // 无文件时是页内文本拖放，走浏览器默认插入
+    });
+
+    // 粘贴后自动识别为自定义文档（无需再点「自定义」chip）
+    ta.addEventListener("paste", () => setTimeout(() => {
+      if (!ta.value.trim()) return;
+      state.sampleId = "custom";
+      state.text = ta.value;
+      renderChips();
+      $("desc").textContent = "检测到粘贴内容，直接点「▶ 运行规则审计」即可（发现将 100% 附证据坐标）。";
+    }, 0));
+
+    // 文件选择器
+    const pick = document.createElement("input");
+    pick.type = "file";
+    pick.accept = ".md,.txt,.html,.json,.xml,.csv,.log,text/*";
+    pick.style.display = "none";
+    document.body.appendChild(pick);
+    pick.addEventListener("change", () => {
+      if (pick.files && pick.files[0]) readTextFile(pick.files[0]);
+      pick.value = "";
+    });
+    const btn = $("pick-file");
+    if (btn) btn.addEventListener("click", () => pick.click());
+  }
+
   /* ---------- 启动 ---------- */
   document.addEventListener("DOMContentLoaded", () => {
     renderChips();
@@ -223,6 +289,7 @@ ${state.trail.map(t => `- \`${t.ts}\` ${t.action} ｜ ${t.detail}`).join("\n")}
     $("run-llm").onclick = runSemantic;
     $("run-assert").onclick = runAssert;
     $("export").onclick = exportReport;
-    trail("系统就绪", "审迹 MVP v0.2（规则引擎 " + E.RULES.length + " 规则 + 语义引擎，支持免费档模型）");
+    setupImport();
+    trail("系统就绪", "审迹 MVP v0.3（规则引擎 " + E.RULES.length + " 规则 · 医药费用合规包 · 支持拖拽/选择/粘贴导入）");
   });
 })();

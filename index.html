@@ -51,6 +51,9 @@
     width: 100%; height: 200px; padding: 12px; font: 13px/1.6 Consolas, monospace;
     background: var(--page); border: 1px solid var(--line); border-radius: 4px; color: var(--ink);
   }
+  textarea.dropping { border: 2px dashed var(--seal); background: #fdf6f0; }
+  .import-row { display: flex; gap: 12px; align-items: center; margin: 8px 0; flex-wrap: wrap; }
+  .import-row .note { font-size: 12.5px; color: var(--muted); }
   .keyrow { margin: 10px 0; font-size: 13px; }
   .keyrow input, .keyrow select {
     padding: 6px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--page); color: var(--ink); font-size: 13px;
@@ -158,6 +161,7 @@
     <h4>四、常见问题</h4>
     <ul>
       <li><b>文字看不清？</b>请使用 Chrome / Edge 最新版，并在浏览器设置中关闭"强制深色模式"（本页为浅色宣纸风格设计）；</li>
+      <li><b>怎么导入自己的文档？</b>三种方式任选：把 .md / .txt 文件直接拖进文本框、点「📁 选择文档」、或在文本框内粘贴（自动识别为自定义文档）；</li>
       <li><b>语义审计提示"离线缓存"？</b>表示展示的是预生成结果；填入 Key 后同一样例可实时重审；</li>
       <li><b>数据安全？</b>规则引擎纯本地；语义引擎仅在填 Key 时把待审文本直连智谱 API，不经过任何中间服务器。</li>
     </ul>
@@ -166,7 +170,11 @@
   <h3>① 选择或粘贴待审文档</h3>
   <div id="samples"></div>
   <div id="desc" class="desc"></div>
-  <textarea id="input" spellcheck="false" placeholder="粘贴 SKILL.md / 合规知识文档 / TEST.md 验证报告…"></textarea>
+  <textarea id="input" spellcheck="false" placeholder="粘贴 / 拖入 / 选择待审文档（SKILL.md / 合规知识文档 / TEST.md 验证报告…）"></textarea>
+  <div class="import-row">
+    <button id="pick-file" class="act ghost" type="button">📁 选择文档</button>
+    <span class="note">支持把 .md / .txt / .html 文档直接<b>拖进上方文本框</b>；在文本框内<b>粘贴</b>后自动识别为自定义文档。</span>
+  </div>
 
   <div class="keyrow">
     智谱 API Key（可选）：<input id="key" type="password" placeholder="仅存本浏览器 localStorage，不经过任何服务器">
@@ -197,12 +205,12 @@
   <footer>
     <b>审迹</b> = 审计轨迹（Audit Trail）｜ 规则引擎本地确定性运行 ｜ 语义引擎浏览器直连智谱 GLM，密钥仅存 localStorage ｜
     样例源自 2026-08 真实合规排查：60+ 仓库全量扫描发现"分批出境"监管红线被包装为实操建议，已修正。<br>
-    联系我们：<b>2281216234@qq.com</b>（审迹小组 · 高强）｜ 遇到问题或希望共建规则库，欢迎邮件交流。
+    联系我们：<b>2281216234@qq.com</b>（审迹小组）｜ 遇到问题或希望共建规则库，欢迎邮件交流。
   </footer>
 </div>
-<script src="samples.js?v=0.2.1"></script>
-<script src="llm-cache.js?v=0.2.1"></script>
-<script src="app.js?v=0.2.1"></script>
-<script src="ui.js?v=0.2.1"></script>
+<script src="samples.js?v=0.3.0"></script>
+<script src="llm-cache.js?v=0.3.0"></script>
+<script src="app.js?v=0.3.0"></script>
+<script src="ui.js?v=0.3.0"></script>
 </body>
 </html>
