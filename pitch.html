@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>审迹 SHENJI · 智绘未来 2026 AI 黑客松决赛路演</title>
+<style>
+:root{
+  --paper:#f6f2e9; --card:#fdfbf6; --ink:#2f2c28; --soft:#6a645c; --faint:#918a80;
+  --line:#e3dbc9; --red:#9c3a2f; --red2:#b9603f; --amber:#b07d43; --green:#5f7360;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-snap-type:y mandatory;scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:"Microsoft YaHei","PingFang SC",sans-serif}
+.slide{height:100vh;scroll-snap-align:start;display:flex;flex-direction:column;
+  padding:56px 84px 64px;position:relative;overflow:hidden;
+  background-image:radial-gradient(circle at 10% 15%,rgba(180,160,120,.07) 0,transparent 40%),
+    radial-gradient(circle at 90% 80%,rgba(150,130,100,.06) 0,transparent 44%)}
+.slide .eyebrow{font-size:12px;letter-spacing:.3em;color:var(--red);text-transform:uppercase;margin-bottom:14px}
+.slide .eyebrow .no{display:inline-block;border:1px solid var(--red);border-radius:2px;padding:1px 8px;margin-right:10px}
+h1{font-size:44px;font-weight:700;letter-spacing:.04em;line-height:1.3}
+h1 .en{display:block;font-size:13px;letter-spacing:.26em;color:var(--faint);font-weight:400;margin-top:10px}
+h2{font-size:30px;font-weight:700;letter-spacing:.06em;margin-bottom:6px}
+.sub{font-size:13px;color:var(--faint);letter-spacing:.08em;margin-bottom:26px}
+.seal{position:absolute;top:48px;right:70px;width:72px;height:72px;border:2.5px solid var(--red);
+  border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--red);
+  font-size:15px;letter-spacing:.12em;line-height:1.4;text-align:center;opacity:.8;
+  transform:rotate(-7deg);font-weight:600}
+.rule{border:none;border-top:1px solid var(--line);margin:14px 0 24px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:18px 20px}
+.card h4{font-size:15px;margin-bottom:8px;color:var(--ink)}
+.card h4 .cid{color:var(--red);font-size:11px;letter-spacing:.12em;margin-right:8px}
+.card p,.card li{font-size:12.8px;color:var(--soft);line-height:1.85}
+.card ul{list-style:none}
+.card li{padding-left:13px;position:relative}
+.card li::before{content:"";position:absolute;left:0;top:10px;width:4px;height:1px;background:var(--faint)}
+.bignum{font-size:40px;font-weight:700;color:var(--red);line-height:1.1}
+.bignum small{font-size:14px;color:var(--soft);font-weight:400}
+.kpi .n{font-size:38px;font-weight:700;color:var(--red)}
+.kpi .l{font-size:12px;color:var(--soft);margin-top:6px;line-height:1.6}
+table{width:100%;border-collapse:collapse;font-size:12.8px;background:var(--card)}
+th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;line-height:1.7}
+th{background:#efe9d8;font-weight:700}
+.flow{display:flex;align-items:stretch;gap:0;margin-top:8px}
+.fnode{flex:1;background:var(--card);border:1px solid var(--line);padding:14px 12px;text-align:center;position:relative}
+.fnode b{display:block;font-size:13.5px;margin-bottom:5px}
+.fnode span{font-size:11.5px;color:var(--soft);line-height:1.6;display:block}
+.farrow{display:flex;align-items:center;padding:0 8px;color:var(--red);font-size:20px;font-weight:700}
+.hl{color:var(--red);font-weight:700}
+.quote{background:#f0ead8;border-left:3px solid var(--red);padding:14px 18px;font-size:14px;line-height:1.9;color:var(--ink)}
+.pageno{position:absolute;bottom:22px;right:70px;font-size:12px;color:var(--faint);letter-spacing:.1em}
+.center{justify-content:center;align-items:center;text-align:center;display:flex;flex-direction:column;flex:1}
+.hint{font-size:12px;color:var(--faint);margin-top:8px}
+.pill{display:inline-block;border:1px solid var(--line);background:var(--card);border-radius:20px;
+  padding:4px 14px;font-size:12px;color:var(--soft);margin:0 6px 6px 0}
+a{color:var(--red)}
+</style>
+</head>
+<body>
+
+<!-- S1 封面 -->
+<section class="slide" id="s1">
+  <div class="seal">证据<br>审计</div>
+  <div class="center">
+    <div class="eyebrow" style="text-align:center">CLOUDPENSE · 智绘未来</div>
+    <h1>审迹 SHENJI<span style="font-size:26px;color:var(--soft);font-weight:400">　医药业财合规审计智能体</span>
+      <span class="en">EVIDENCE-FIRST AI AUDITOR · 2026 AI HACKATHON FINALS</span>
+    </h1>
+    <hr class="rule" style="width:420px;margin:26px auto">
+    <p style="font-size:15px;color:var(--soft)">智绘未来 2026 AI 黑客松 · 决赛路演 ｜ 赛道：AI + 审计合规</p>
+    <p style="font-size:13px;color:var(--faint);margin-top:8px">项目团队：审迹小组（人机共创）</p>
+    <p style="font-size:12px;color:var(--faint);margin-top:22px">在线 MVP：wanglin1111111.github.io/shenji-audit ｜ 提示：← → 方向键翻页</p>
+  </div>
+  <div class="pageno">01 / 17</div>
+</section>
+
+<!-- S2 目录 -->
+<section class="slide" id="s2">
+  <div class="eyebrow">CONTENTS</div>
+  <h2>目 录</h2>
+  <hr class="rule">
+  <div class="grid g2" style="gap:18px;margin-top:10px">
+    <div class="card"><h4><span class="cid">SECTION 01</span>团队介绍</h4><p>审迹小组：人类定标准，AI 提效率的人机共创团队</p></div>
+    <div class="card"><h4><span class="cid">SECTION 02</span>问题洞察</h4><p>医药费用合规的证据链困境：两票制、集采与"智审·智协"时代的新要求</p></div>
+    <div class="card"><h4><span class="cid">SECTION 03</span>方案设计与验证</h4><p>方案回顾 · 流程设计 · Demo · 难点与挑战 · 验证材料 · 技术实现</p></div>
+    <div class="card"><h4><span class="cid">SECTION 04</span>项目价值</h4><p>合规证据链可信 · 防篡改底稿 · 医药场景化 · 开源可复用</p></div>
+    <div class="card"><h4><span class="cid">SECTION 05</span>未来展望</h4><p>隐私声明独立页 · 数字签名 · 医药规则库共建</p></div>
+    <div class="card" style="display:flex;align-items:center;justify-content:center;background:#f0ead8">
+      <p style="text-align:center;font-size:13.5px;color:var(--ink)">完整内容路径：<br><b>让每一条审计结论，都有证据坐标</b></p>
+    </div>
+  </div>
+  <div class="pageno">02 / 17</div>
+</section>
+
+<!-- S3 团队介绍 -->
+<section class="slide" id="s3">
+  <div class="eyebrow"><span class="no">SECTION 01</span>团队介绍</div>
+  <h2>人机共创的审迹小组</h2>
+  <div class="sub">流程 · IT 与财务合规领域协同推进 —— AI 时代的新型团队形态</div>
+  <div class="grid g3">
+    <div class="card"><h4><span class="cid">流程</span>审计方法论</h4><p>证据优先、双样例断言、人工兜底闭环——源自真实合规排查工作流（60+ 仓库全量扫描、116 仓库普查）</p></div>
+    <div class="card"><h4><span class="cid">IT-研发</span>规则引擎与工程</h4><p>确定性规则引擎 10 条 + 医药红线组；纯前端零后端架构；SHA-256 底稿摘要算法（SJ-DIGEST-V1）</p></div>
+    <div class="card"><h4><span class="cid">财务合规</span>医药费用口径</h4><p>讲课费标准、CSO 准入、招待费预警线、研发资本化里程碑——行业口径全部落到可执行规则</p></div>
+  </div>
+  <div class="quote" style="margin-top:20px">团队即案例：审迹本身按「AI 原生」方式协作——人类定标准与判断对错，AI 承担编码、测试与文档。
+    本次参赛材料中，合规检查流程由 AI 审计员对审迹自身完成 10 域 32 项检查，26 例测试与 8/8 摘要断言全绿。</div>
+  <div class="pageno">03 / 17</div>
+</section>
+
+<!-- S4 目标用户 -->
+<section class="slide" id="s4">
+  <div class="eyebrow"><span class="no">SECTION 02</span>问题洞察 ｜ 目标用户</div>
+  <h2>谁需要审迹</h2>
+  <div class="sub">覆盖规模为行业公开量级 · 演示数据为合成样本</div>
+  <div class="grid g3" style="margin-bottom:16px">
+    <div class="card kpi"><div class="n">8000+</div><div class="l">医药工业企业（行业公开量级），两票制与集采下费用合规压力全行业传导</div></div>
+    <div class="card kpi"><div class="n">亿元级</div><div class="l">单家创新药企年度学术推广费用，会务/讲课费/CSO 单据年万级</div></div>
+    <div class="card kpi"><div class="n">3 类</div><div class="l">主要用户：药企内审与合规部、财务共享中心、CSO 与服务商管理层</div></div>
+  </div>
+  <table>
+    <tr><th style="width:60px">序号</th><th style="width:150px">维度</th><th>说明</th></tr>
+    <tr><td>1</td><td>审计对象</td><td>学术推广费、招待费、CSO 服务费、研发费用归集——医药费用审计四大高危区</td></tr>
+    <tr><td>2</td><td>业务口径</td><td>讲课费单场标准、供应商准入、招待费占比预警线、研发资本化里程碑</td></tr>
+    <tr><td>3</td><td>用户细分</td><td>内审合规（出结论）、财务共享（管凭证）、业务部门（被审计与自查）</td></tr>
+    <tr><td>4</td><td>使用场景</td><td>专项审计、年检自查、CSO 准入复核、IPO/高新资质申报前的费用底稿整理</td></tr>
+    <tr><td>5</td><td>交付形态</td><td>纯前端零安装：打开网页即用，底稿本地导出，满足境内存储要求</td></tr>
+  </table>
+  <div class="pageno">04 / 17</div>
+</section>
+
+<!-- S5 用户痛点 -->
+<section class="slide" id="s5">
+  <div class="eyebrow"><span class="no">SECTION 02</span>问题洞察 ｜ 用户痛点</div>
+  <h2>费用合规审计的四道鸿沟</h2>
+  <div class="sub">抽样审计时代的方法，追不上两票制与数智监管的口径</div>
+  <div class="grid g2">
+    <div class="card"><h4><span class="cid">痛点 1</span>抽样覆盖率低</h4><p>人工抽查覆盖率不足 5%，海量会务/讲课费单据看不过来；漏掉的一张连号发票，可能就是一条虚开链条。</p></div>
+    <div class="card"><h4><span class="cid">痛点 2</span>证据不留痕</h4><p>审计结论常靠"经验判断"，缺文件行级证据坐标；被审计方一句"不认可"就要重来——复核成本极高。</p></div>
+    <div class="card"><h4><span class="cid">痛点 3</span>AI 结论不可信</h4><p>直接让大模型"审费用"，幻觉与"把违规包装成建议"频发；AI 说了算的审计，本身就是合规风险。</p></div>
+    <div class="card"><h4><span class="cid">痛点 4</span>底稿可篡改</h4><p>复核记录可被无痕修改后重新导出——一份"看起来全员采信"的假底稿，足以摧毁审计的全部证明力。</p></div>
+  </div>
+  <div class="quote" style="margin-top:18px">扬子江 CFO 在本次发布会讲「智审·智协——AI 驱动费用治理」：行业已经公认 AI 要进费用治理，
+    <span class="hl">但"AI 审计员自己可信吗"没有人回答</span>——审迹从第一天就回答这个问题。</div>
+  <div class="pageno">05 / 17</div>
+</section>
+
+<!-- S6 产品需求 -->
+<section class="slide" id="s6">
+  <div class="eyebrow"><span class="no">SECTION 02</span>问题洞察 ｜ 产品需求</div>
+  <h2>把"可信"做成产品约束</h2>
+  <div class="sub">三条产品需求，全部转化为代码级强制</div>
+  <div class="grid g3">
+    <div class="card"><div class="bignum">01</div><h4 style="margin-top:8px">发现必附证据坐标</h4><p>每条审计发现 100% 附「凭证号/行号 + 原文摘录」，可独立回溯还原；无证据的判断不进入结果。</p></div>
+    <div class="card"><div class="bignum">02</div><h4 style="margin-top:8px">AI 永不定性</h4><p>AI 线索一律「待人工复核」；审计结论仅对<b>已人工采信</b>的发现作出，未复核完成时底稿明示"不构成审计结论"。</p></div>
+    <div class="card"><div class="bignum">03</div><h4 style="margin-top:8px">底稿防篡改可验证</h4><p>导出时按公开算法（SJ-DIGEST-V1）计算 SHA-256 摘要写入底稿，任何人可独立复算比对。</p></div>
+  </div>
+  <div class="pageno">06 / 17</div>
+</section>
+
+<!-- S7 关键指标 -->
+<section class="slide" id="s7">
+  <div class="eyebrow"><span class="no">SECTION 02</span>问题洞察 ｜ 关键指标与用户价值</div>
+  <h2>用真实运行数据说话</h2>
+  <div class="sub">以下数字均来自本次提交版本的自动化测试与线上实测，可现场复验</div>
+  <div class="grid g4" style="margin-bottom:14px">
+    <div class="card kpi"><div class="n">100%</div><div class="l">发现附证据坐标（文件+行号+原文）</div></div>
+    <div class="card kpi"><div class="n">26/26</div><div class="l">自动化测试全绿（正常/边界/错误输入/AI 失败）</div></div>
+    <div class="card kpi"><div class="n">5/5</div><div class="l">医药红线规则全命中（违规制度样例实测）</div></div>
+    <div class="card kpi"><div class="n">1ms</div><div class="l">规则引擎单次审计耗时（本地确定性运行）</div></div>
+  </div>
+  <div class="grid g3">
+    <div class="card"><p><b>① 零配置体验：</b>打开网页 3.5 秒可用；不填 API Key 也能完整体验规则审计与全部复核工作流。</p></div>
+    <div class="card"><p><b>② 双环境一致：</b>浏览器与 Node 测试结果逐项一致；摘要算法独立验收 8/8 通过。</p></div>
+    <div class="card"><p><b>③ 真实底稿核验：</b>导出底稿经 10 项内容核验（复核人/摘要/来源分段/结论口径）全部通过。</p></div>
+  </div>
+  <div class="pageno">07 / 17</div>
+</section>
+
+<!-- S8 方案回顾 -->
+<section class="slide" id="s8">
+  <div class="eyebrow"><span class="no">SECTION 03</span>方案设计与验证 ｜ 方案回顾</div>
+  <h2>从初赛到决赛：三步进化</h2>
+  <div class="grid g3" style="margin-top:10px">
+    <div class="card"><h4><span class="cid">01</span>方案落地</h4><p>初赛上线纯前端 MVP：双引擎审计 + 双样例断言 + 人工复核闭环 + 底稿导出，GitHub Pages 公网可访问。</p></div>
+    <div class="card"><h4><span class="cid">02</span>需求回顾</h4><p>官方指南要求"真实操作演示、附失败案例、测试案例 20-50 条"——初赛按 coach 规范完成 22 条测试与 8 页成果报告。</p></div>
+    <div class="card"><h4><span class="cid">03</span>问题挑战</h4><p>用户反馈白字/说明书缺失/导入不便——v0.2.x 连续迭代修复；并对审迹自身完成 10 域 32 项合规自审计。</p></div>
+  </div>
+  <div class="pageno">08 / 17</div>
+</section>
+
+<!-- S9 流程设计 -->
+<section class="slide" id="s9">
+  <div class="eyebrow"><span class="no">SECTION 03</span>方案设计与验证 ｜ 流程设计</div>
+  <h2>审计流水线：识别 → 取证 → 复核 → 留痕</h2>
+  <div class="sub">开始 → 引擎群 → 人工 → 底稿，全程轨迹可追溯</div>
+  <div class="flow">
+    <div class="fnode"><b>开始</b><span>拖入/粘贴/选择<br>待审文档</span></div>
+    <div class="farrow">→</div>
+    <div class="fnode"><b>规则引擎</b><span>RL-01~10 十条红线<br>本地确定性 · 1ms</span></div>
+    <div class="farrow">→</div>
+    <div class="fnode"><b>敏感检测</b><span>证件号/银行卡/手机号<br>命中阻断 · 放行留痕</span></div>
+    <div class="farrow">→</div>
+    <div class="fnode"><b>语义引擎</b><span>GLM 直连（可选）<br>语义级违规识别</span></div>
+    <div class="farrow">→</div>
+    <div class="fnode"><b>人工复核</b><span>采信 / 驳回<br>逐条留痕</span></div>
+    <div class="farrow">→</div>
+    <div class="fnode"><b>底稿导出</b><span>SHA-256 摘要<br>复核人标识</span></div>
+  </div>
+  <div class="grid g3" style="margin-top:18px">
+    <div class="card"><p><b>证据坐标：</b>每条发现附「行号 + 原文」，高亮呈现，可独立还原。</p></div>
+    <div class="card"><p><b>复核闭环：</b>AI 永不定性——全部发现经人工采信/驳回后才生成结论。</p></div>
+    <div class="card"><p><b>全程留痕：</b>载入、审计、放行、复核、导出每一步写入审计轨迹。</p></div>
+  </div>
+  <div class="pageno">09 / 17</div>
+</section>
+
+<!-- S10 Demo -->
+<section class="slide" id="s10">
+  <div class="eyebrow"><span class="no">SECTION 03</span>方案设计与验证 ｜ Demo 演示</div>
+  <h2>Demo：三分钟看审迹抓一条医药红线</h2>
+  <div class="sub">推荐现场实机演示（备用：演示视频）</div>
+  <div class="grid g3">
+    <div class="card"><h4><span class="cid">Step 1</span>载入违规制度样例</h4><p>《学术推广活动费用管理办法（试行）》——讲课费"可拆分为两笔分次支付"、签到表"自行补录"、CSO"先行打款后补资质"……违规被写成制度条款。</p></div>
+    <div class="card"><h4><span class="cid">Step 2</span>运行规则审计</h4><p>10 条规则 1ms 扫完，<b>5 条医药红线全部命中</b>：RL-06 拆分、RL-07 签到表复用、RL-08 先款后证、RL-09 科目腾挪、RL-10 归集口径。</p></div>
+    <div class="card"><h4><span class="cid">Step 3</span>采信并导出底稿</h4><p>逐条采信 → 填复核人 → 导出：底稿含结论「经人工采信的红线 5 项」+ SHA-256 摘要，任何人可按公开规范复算验证。</p></div>
+  </div>
+  <div class="quote" style="margin-top:18px">现场入口：<a>wanglin1111111.github.io/shenji-audit</a>（评委可用自己的电脑同步操作）。
+    备用：初赛演示视频 3 分 55 秒（含已知限制说明）。</div>
+  <div class="pageno">10 / 17</div>
+</section>
+
+<!-- S11 难点 -->
+<section class="slide" id="s11">
+  <div class="eyebrow"><span class="no">SECTION 03</span>方案设计与验证 ｜ 项目难点</div>
+  <h2>四个"看起来简单、做起来要命"的点</h2>
+  <div class="grid g2">
+    <div class="card"><h4><span class="cid">难点 01</span>误报与漏报的平衡</h4><p>规则太松漏掉拆分支付，太紧误伤合规表述（"严禁拆分"是防护语不是违规）。解法：防护语境豁免 + 双样例断言成对验证。</p></div>
+    <div class="card"><h4><span class="cid">难点 02</span>浏览器直连的合规边界</h4><p>加后端代理或代持 Key，审迹立即变成"生成式 AI 服务提供者"，触发全套备案义务。解法：架构红线写进发布检查单，fail-closed。</p></div>
+    <div class="card"><h4><span class="cid">难点 03</span>无后端下的防篡改</h4><p>没有服务器就没有可信时间源与签名。解法：公开规范化算法 SJ-DIGEST-V1，任何人可独立复算——防篡改验证与来源认证分开定位。</p></div>
+    <div class="card"><h4><span class="cid">难点 04</span>中文标点与断行</h4><p>ReportLab 无标点禁则导致行首分号、ReportLab 缓存与 Class 名冲突白字——两次被用户反馈抓出。解法：切换 Chromium 渲染 + 类名作用域隔离。</p></div>
+  </div>
+  <div class="pageno">11 / 17</div>
+</section>
+
+<!-- S12 挑战与解决 -->
+<section class="slide" id="s12">
+  <div class="eyebrow"><span class="no">SECTION 03</span>方案设计与验证 ｜ 挑战与解决方案</div>
+  <h2>两次真实迭代</h2>
+  <div class="grid g2">
+    <div class="card">
+      <h4><span class="cid">挑战 1</span>"审计员自己可信吗"</h4>
+      <p style="margin-bottom:8px"><b>局限：</b>审迹 v0.2 的底稿结论不读复核状态——全部驳回仍写"拦截"，与"AI 永不定性"的承诺自相矛盾（自审计发现）。</p>
+      <p><b>解决：</b>FIX-01 重写结论逻辑：只对已采信发现定性，存在未复核项时明示"不构成审计结论"；并新增复核人强制标识。</p>
+    </div>
+    <div class="card">
+      <h4><span class="cid">挑战 2</span>"假底稿"风险</h4>
+      <p style="margin-bottom:8px"><b>局限：</b>导出的 Markdown 明文无摘要，记事本把"驳回"改成"采信"不可察觉——一份假底稿即可污染审计证据链。</p>
+      <p><b>解决：</b>FIX-02 落地 SJ-DIGEST-V1：导出时对「输入+发现+复核+轨迹」序列化计算 SHA-256，算法与验证脚本全部公开（8/8 断言通过）。</p>
+    </div>
+  </div>
+  <div class="pageno">12 / 17</div>
+</section>
+
+<!-- S13 验证材料 -->
+<section class="slide" id="s13">
+  <div class="eyebrow"><span class="no">SECTION 03</span>方案设计与验证 ｜ 验证材料完整保留</div>
+  <h2>全部验证可独立复现</h2>
+  <div class="sub">测试报告 · 结构化结果 · 测试与字段信息</div>
+  <table>
+    <tr><th style="width:200px">验证项</th><th>方法</th><th style="width:130px">结果</th></tr>
+    <tr><td>自动化测试 26 例</td><td>正常 8 / 边界 9 / 信息缺失 3 / 错误输入 3 / AI 失败 2 / 一致性回归 1（含医药行业包）</td><td><b>26/26 通过</b></td></tr>
+    <tr><td>双样例断言 5 组</td><td>违规样例必须 exit 1、合规样例必须 exit 0，浏览器与 Node 双环境一致</td><td><b>5/5 通过</b></td></tr>
+    <tr><td>摘要算法验收 8 项</td><td>确定性 / 复核篡改 / 文本 / 编号 / 时间 / 轨迹 / 新增发现 / 证据行号</td><td><b>8/8 通过</b></td></tr>
+    <tr><td>真实底稿内容核验 10 项</td><td>复核人写入 / 摘要 64 位 / 来源分段 / 结论口径 / 无姓名残留</td><td><b>10/10 通过</b></td></tr>
+    <tr><td>敏感检测实测</td><td>证件号 / 银行卡 / 手机号样文命中并阻断语义外发</td><td><b>通过</b></td></tr>
+  </table>
+  <p class="hint" style="margin-top:10px">测试脚本随仓库公开：testcases.run.mjs · digest-verify.mjs · patch-smoke-test.mjs</p>
+  <div class="pageno">13 / 17</div>
+</section>
+
+<!-- S14 技术实现 -->
+<section class="slide" id="s14">
+  <div class="eyebrow"><span class="no">SECTION 03</span>方案设计与验证 ｜ 技术实现</div>
+  <h2>架构即合规</h2>
+  <div class="grid g4" style="margin-top:8px">
+    <div class="card"><div class="bignum">01</div><h4 style="margin-top:8px">纯前端零后端</h4><p>GitHub Pages 静态托管，无账号无数据库——从架构上免疫"生成式 AI 服务提供者"备案义务。</p></div>
+    <div class="card"><div class="bignum">02</div><h4 style="margin-top:8px">确定性规则引擎</h4><p>10 条红线规则本地运行，1ms 完成；防护语境豁免防止把"严禁 XX"误判为违规。</p></div>
+    <div class="card"><div class="bignum">03</div><h4 style="margin-top:8px">浏览器直连 GLM</h4><p>语义引擎密钥仅存本地 localStorage，不经过任何中间服务器；无 Key 时离线缓存兜底。</p></div>
+    <div class="card"><div class="bignum">04</div><h4 style="margin-top:8px">SJ-DIGEST-V1</h4><p>SHA-256 规范化摘要覆盖输入/发现/复核/轨迹；算法与验证脚本公开，可独立复算。</p></div>
+  </div>
+  <div class="pageno">14 / 17</div>
+</section>
+
+<!-- S15 项目价值 -->
+<section class="slide" id="s15">
+  <div class="eyebrow"><span class="no">SECTION 04</span>项目价值</div>
+  <h2>四重价值</h2>
+  <div class="grid g2">
+    <div class="card"><h4><span class="cid">价值 01</span>提效：全量替代抽样</h4><p>1ms 全量扫描替代人工抽查，12 份演示凭证 5 条红线 1ms 命中；真实工作流中 116 仓库普查数分钟完成。</p></div>
+    <div class="card"><h4><span class="cid">价值 02</span>质量：证据链可信</h4><p>每条结论附证据坐标并可独立复算；"自证式假验证"被双样例断言制度性拦截——审计的证明力升级。</p></div>
+    <div class="card"><h4><span class="cid">价值 03</span>风控：把违规拦在事前</h4><p>违规被包装成制度条款也能被识别（医药 5 条红线全命中）；敏感数据外发有阻断与留痕，风险从"事后发现"前移到"事前拦截"。</p></div>
+    <div class="card"><h4><span class="cid">价值 04</span>推广：开源可复制</h4><p>规则与口径解耦——换行业只换规则包（已内置跨境合规与医药两组）；源码与算法全部公开，事务所与药企可自部署。</p></div>
+  </div>
+  <div class="pageno">15 / 17</div>
+</section>
+
+<!-- S16 未来展望 -->
+<section class="slide" id="s16">
+  <div class="eyebrow"><span class="no">SECTION 05</span>未来展望</div>
+  <h2>下一步：从工具到信任基础设施</h2>
+  <div class="grid g3" style="margin-top:8px">
+    <div class="card"><h4><span class="cid">展望 1</span>独立隐私声明页与 Key 治理</h4><p>privacy.html 数据处理专页；Key「会话结束即清除」开关与一键清除，补齐共享终端场景。</p></div>
+    <div class="card"><h4><span class="cid">展望 2</span>数字签名与可信时间源</h4><p>摘要只防篡改、不防伪造来源——引入签名与 RFC3161 时间戳，把"防篡改验证"升级为"不可否认性"。</p></div>
+    <div class="card"><h4><span class="cid">展望 3</span>医药规则库共建</h4><p>与事务所、药企合规部共建规则包：讲课费地区标准、集采品种口径、CSO 黑名单联动——Know-how 沉淀为可复用资产。</p></div>
+  </div>
+  <div class="quote" style="margin-top:20px">对照 ISO/IEC 42001 建立 AI 管理体系骨架；每季度以 CR-1~CR-10 检查域自审计并公开不符合项台账——
+    审迹的终局不是"一个工具"，而是<b>可被独立验证的审计信任基础设施</b>。</div>
+  <div class="pageno">16 / 17</div>
+</section>
+
+<!-- S17 谢谢 -->
+<section class="slide" id="s17">
+  <div class="seal">审迹<br>SHENJI</div>
+  <div class="center">
+    <h1 style="font-size:52px">谢谢观看</h1>
+    <p style="font-size:15px;color:var(--soft);margin-top:18px">让每一条审计结论，都有证据坐标。</p>
+    <hr class="rule" style="width:360px;margin:26px auto">
+    <p style="font-size:13px;color:var(--faint)">在线 MVP：wanglin1111111.github.io/shenji-audit ｜ 摘要算法规范：/digest-spec.md</p>
+    <p style="font-size:12px;color:var(--faint);margin-top:8px">智绘未来 · 2026 AI 黑客松决赛 ｜ AI + 审计合规赛道 ｜ 审迹小组</p>
+  </div>
+  <div class="pageno">17 / 17</div>
+</section>
+
+<script>
+const slides=[...document.querySelectorAll(".slide")];let cur=0;
+function go(n){cur=Math.max(0,Math.min(slides.length-1,n));slides[cur].scrollIntoView({behavior:"smooth"});}
+document.addEventListener("keydown",e=>{
+  if(["ArrowRight","ArrowDown","PageDown"," "].includes(e.key)){e.preventDefault();go(cur+1);}
+  if(["ArrowLeft","ArrowUp","PageUp"].includes(e.key)){e.preventDefault();go(cur-1);}
+  if(e.key==="Home"){e.preventDefault();go(0);} if(e.key==="End"){e.preventDefault();go(slides.length-1);}
+});
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)cur=slides.indexOf(e.target);}),{threshold:.55});
+slides.forEach(s=>io.observe(s));
+</script>
+</body>
+</html>
